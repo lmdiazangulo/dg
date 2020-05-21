@@ -1,0 +1,64 @@
+{
+    "solver": {
+        "type": "maxwell",
+        "dimension": 1,
+        "spatial_discretization": {
+            "type": "discontinuous_galerkin",
+            "flux_type": "centered",
+            "basis": {
+                "type": "nodal_LGL",
+                "order": 1
+            },
+            "tesselations": [
+                {
+                    "grid": [
+                        {
+                            "elem_id": 0,
+                            "steps": 0.025,
+                            "bounds": ["pec", "pec"]
+                        }
+                    ]
+                }
+            ]
+        },
+        "domain": {
+            "time": {
+                "type": "lserk4",
+                "final_time": 20e-9,
+                "cfl": 1.0
+            }
+        }
+    },
+
+    "coordinates": [
+        0.0,
+        1.0,
+        0.5
+    ],
+
+    "elements": [
+        [0, 1],
+        [2, 2],
+        [1, 2]
+    ],
+
+    "electromagnetic_sources": [
+        {
+            "type": "initialCond",
+            "magnitude": {
+                "type": "gaussian",
+                "gaussian_spread": 0.05,
+                "gaussian_amplitude": 0.5,
+                "peak_position": 1
+            }
+        }
+    ],
+
+    "probes": [
+        {
+            "name": "e_all",
+            "type": "electricField",
+            "elem_id": 0
+        }
+    ]
+}
