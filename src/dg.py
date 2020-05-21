@@ -143,7 +143,7 @@ class Line:
         if N==0:
             return dP
            
-        jPol = Line.jacobiPolynomial(r,alpha+1,beta+1,N-1)
+        jPol = Line.jacobi_polynomial(r,alpha+1,beta+1,N-1)
         for i in range(len(r)):
             dP[i] = math.sqrt(N*(N+alpha+beta+1))*jPol[i]
         
