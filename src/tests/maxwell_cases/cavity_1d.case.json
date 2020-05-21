@@ -1,25 +1,27 @@
 {
     "solver": {
         "type": "maxwell",
-        "dimension": 1,
         "spatial_discretization": {
-            "type": "dg",
-            "flux_type": "centered",
-            "basis": {
-                "type": "nodal_LGL",
-                "order": 1
-            },
-            "tesselations": [
-                {
-                    "grid": [
-                        {
-                            "elem_id": 0,
-                            "steps": 0.025,
-                            "bounds": ["pec", "pec"]
-                        }
-                    ]
-                }
-            ]
+            "tesselation": {
+                "dimension": 1,
+                "type": "dg",
+                "flux_type": "centered",
+                "fields": {
+                    "electric": 1,
+                    "magnetic": 1
+                },
+                "basis": {
+                    "type": "nodal_lgl",
+                    "order": 1
+                },
+                "grid": [
+                    {
+                        "elem_id": 0,
+                        "steps": 0.025,
+                        "bounds": ["pec", "pec"]
+                    }
+                ]
+            }
         },
         "time_integrator": {
             "type": "lserk4",

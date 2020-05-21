@@ -2,12 +2,22 @@ import numpy as np
 import scipy.special
 import math
 
+class Tesselation:
+    def __init__(self, opts):
+        compatiblity_check = \
+            opts["dimension"] == 1 and \
+            opts["type"] == "dg" and \
+            opts["flux_type"] == "centered" and \
+            opts["basis"] == {"type": "nodal_lgl", "order": 1} and \
+            "grid" in opts
+        if not compatiblity_check:
+            raise ValueError("Tesselation parameters are not supported")
+
 class DG:
-    
+
     def __init__(self, case):
-        discretization_strategy = case["solver"]["spatial_discretization"]
-        
-        #TODO
+        self.tesselation = \
+            Tesselation(case["spatial_discretization"]["tesselation"])
 
 
 class Line:
