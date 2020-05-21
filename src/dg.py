@@ -2,10 +2,18 @@ import numpy as np
 import scipy.special
 import math
 
+class DG:
+    
+    def __init__(self, case):
+        discretization_strategy = case["solver"]["spatial_discretization"]
+        
+        #TODO
+
+
 class Line:
 
     @staticmethod
-    def setNodes1D(N, vertices):
+    def set_nodes_1d(N, vertices):
         """ 
         Sets N+1 nodes in equispaced positions using the vertices indicated
         by vx.
@@ -20,15 +28,15 @@ class Line:
         return x
 
     @staticmethod
-    def nodeIndices1D(N):
+    def node_indices_1d(N):
         """
         Generates number of node Indices for order N.
         
-        >>> Line.nodeIndices1D(1)
+        >>> Line.node_indices_1d(1)
         array([[1, 0],
                [0, 1]])
             
-        >>> Line.nodeIndices1D(2)
+        >>> Line.node_indices_1d(2)
         array([[2, 0],
                [1, 1],
                [0, 2]])
@@ -40,18 +48,18 @@ class Line:
         return nId.astype(int)
         
     @staticmethod
-    def jacobiGaussLobatto(alpha, beta, N):
+    def jacobi_gauss_lobatto(alpha, beta, N):
         """
         Compute the order N Gauss Lobatto quadrature points, x, associated
         with the Jacobi polynomial.
         
-        >>> Line.jacobiGaussLobatto(0.0, 0.0, 1)
+        >>> Line.jacobi_gauss_lobatto(0.0, 0.0, 1)
         array([-1.,  1.])
         
-        >>> Line.jacobiGaussLobatto(0,0,3)
+        >>> Line.jacobi_gauss_lobatto(0,0,3)
         array([-1.       , -0.4472136,  0.4472136,  1.       ])
 
-        >>> Line.jacobiGaussLobatto(0,0,4)
+        >>> Line.jacobi_gauss_lobatto(0,0,4)
         array([-1.        , -0.65465367,  0.        ,  0.65465367,  1.        ])
         
         """
@@ -66,16 +74,16 @@ class Line:
         raise ValueError('N must be positive.')
 
     @staticmethod
-    def jacobiPolynomial(r, alpha, beta, N):
+    def jacobi_polynomial(r, alpha, beta, N):
         """
         Evaluate Jacobi Polynomial
         
-        >>> r = Line.jacobiGaussLobatto(0,0,3)
-        >>> Line.jacobiPolynomial(r, 0, 0, 3)
+        >>> r = Line.jacobi_gauss_lobatto(0,0,3)
+        >>> Line.jacobi_polynomial(r, 0, 0, 3)
         array([-1.87082869,  0.83666003, -0.83666003,  1.87082869])
         
-        >>> r = Line.jacobiGaussLobatto(0,0,4)
-        >>> Line.jacobiPolynomial(r, 0, 0, 4)
+        >>> r = Line.jacobi_gauss_lobatto(0,0,4)
+        >>> Line.jacobi_polynomial(r, 0, 0, 4)
         array([ 2.12132034, -0.90913729,  0.79549513, -0.90913729,  2.12132034])
         
         """
@@ -113,16 +121,36 @@ class Line:
         return PL[N]
 
     @staticmethod
-    def vandermonde1D(N, r):
+    def vandermonde_1d(N, r):
         """
         Initialize Vandermonde matrix
         """
         res = np.zeros([len(r), N+1])
         
         for j in range(N+1):
-            res[j] = Line.jacobiPolynomial(r, 0, 0, j)
+            res[j] = Line.jacobi_polynomial(r, 0, 0, j)
             
         return res.transpose()
+
+    @staticmethod
+    def jacobi_polynomial_grad(r, alpha, beta, N):
+        """
+        Evaluate the derivative of the Jacobi pol. of type (alpha,beta) > -1
+        at points r for order N
+        >>> r = Line.jacobi_gauss_lobatto(0,0,3)
+        >>> Line.jacobi_polynomial_grad(r,0,0,3)
+        array([11.22497216,  0.        ,  0.        , 11.22497216])
+        """
+        
+        dP = np.zeros([len(r)])
+
+        if N == 0:
+            return dP
+           
+        jPol = Line.jacobi_polynomial(r,alpha+1,beta+1,N-1)
+        for i in range(len(r)):
+            dP[i] = math.sqrt(N*(N+alpha+beta+1))*jPol[i]
+        return dP    
 
 if __name__ == '__main__':
     import doctest
