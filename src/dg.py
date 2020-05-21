@@ -137,16 +137,19 @@ class Line:
         """
         Evaluate the derivative of the Jacobi pol. of type (alpha,beta) > -1
         at points r for order N
+        >>> r = Line.jacobi_gauss_lobatto(0,0,3)
+        >>> Line.jacobi_polynomial_grad(r,0,0,3)
+        array([11.22497216,  0.        ,  0.        , 11.22497216])
         """
-        dP = np.zeros(len(r))
+        
+        dP = np.zeros([len(r)])
 
-        if N==0:
+        if N == 0:
             return dP
            
         jPol = Line.jacobi_polynomial(r,alpha+1,beta+1,N-1)
         for i in range(len(r)):
             dP[i] = math.sqrt(N*(N+alpha+beta+1))*jPol[i]
-        
         return dP    
 
 if __name__ == '__main__':
