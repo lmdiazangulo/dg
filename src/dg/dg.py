@@ -131,6 +131,23 @@ class Line:
             
         return res.transpose()
 
+    @staticmethod
+    def jacobiPolynomialGrad(r, alpha, beta, N):
+        """
+        Evaluate the derivative of the Jacobi pol. of type (alpha,beta) > -1
+        at points r for order N
+        """
+        dP = np.zeros(len(r))
+
+        if N==0:
+            return dP
+           
+        jPol = Line.jacobiPolynomial(r,alpha+1,beta+1,N-1)
+        for i in range(len(r)):
+            dP[i] = math.sqrt(N*(N+alpha+beta+1))*jPol[i]
+        
+        return dP    
+
 if __name__ == '__main__':
     import doctest
     doctest.testmod()
