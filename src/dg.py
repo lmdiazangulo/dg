@@ -78,6 +78,14 @@ class Line:
         """
         Evaluate Jacobi Polynomial
         
+        >>> r = Line.jacobi_gauss_lobatto(0,0,1)
+        >>> Line.jacobi_polynomial(r, 0, 0, 1)
+        array([-1.22474487,  1.22474487])
+
+        >>> r = Line.jacobi_gauss_lobatto(0,0,2)
+        >>> Line.jacobi_polynomial(r, 0, 0, 2)
+        array([ 1.58113883, -0.79056942,  1.58113883])
+
         >>> r = Line.jacobi_gauss_lobatto(0,0,3)
         >>> Line.jacobi_polynomial(r, 0, 0, 3)
         array([-1.87082869,  0.83666003, -0.83666003,  1.87082869])
@@ -96,14 +104,14 @@ class Line:
                 / scipy.special.gamma(alpha+beta+1)
         PL[0] = 1.0 / math.sqrt(gamma0)
         if N == 0:
-            return PL.transpose()
-        
+        #    return PL.transpose()
+            return PL[0]
         gamma1 = (alpha+1.) * (beta+1.) / (alpha+beta+3.) * gamma0
         PL[1] = ((alpha+beta+2.)*r/2. + (alpha-beta)/2.) / math.sqrt(gamma1)
         
         if N == 1:
-            return PL.transpose()
-
+#            return PL.transpose()
+            return PL[1]
         # Repeat value in recurrence.
         aold = 2. / (2.+alpha+beta) \
             * math.sqrt( (alpha+1.)*(beta+1.) / (alpha+beta+3.))
@@ -124,19 +132,27 @@ class Line:
     def vandermonde_1d(N, r):
         """
         Initialize Vandermonde matrix
+        >>> r = Line.jacobi_gauss_lobatto(0,0,2)
+        >>> Line.vandermonde_1d(2,r)
+        array([[ 0.70710678, -1.22474487,  1.58113883],
+               [ 0.70710678,  0.        , -0.79056942],
+               [ 0.70710678,  1.22474487,  1.58113883]])
         """
         res = np.zeros([len(r), N+1])
         
         for j in range(N+1):
-            res[j] = Line.jacobi_polynomial(r, 0, 0, j)
+            res[:,j] = Line.jacobi_polynomial(r, 0, 0, j)
             
-        return res.transpose()
+        return res
 
     @staticmethod
     def jacobi_polynomial_grad(r, alpha, beta, N):
         """
         Evaluate the derivative of the Jacobi pol. of type (alpha,beta) > -1
         at points r for order N
+        >>> r = Line.jacobi_gauss_lobatto(0,0,1)
+        >>> Line.jacobi_polynomial_grad(r,0,0,1)
+        array([1.22474487, 1.22474487])
         >>> r = Line.jacobi_gauss_lobatto(0,0,3)
         >>> Line.jacobi_polynomial_grad(r,0,0,3)
         array([11.22497216,  0.        ,  0.        , 11.22497216])
@@ -151,6 +167,27 @@ class Line:
         for i in range(len(r)):
             dP[i] = math.sqrt(N*(N+alpha+beta+1))*jPol[i]
         return dP    
+
+    @staticmethod
+    def vandermonde_1d_grad(N,r):
+        """
+        Initialize the gradient of the modal basis (i) at (r)
+        at order (N)
+        >>> r = Line.jacobi_gauss_lobatto(0,0,2)
+        >>> Line.vandermonde_1d_grad(2,r)
+        array([[ 0.        ,  1.22474487, -4.74341649],
+               [ 0.        ,  1.22474487,  0.        ],
+               [ 0.        ,  1.22474487,  4.74341649]])
+        """
+
+        DVr =  np.zeros([len(r),N+1])
+        for i in range(N+1):
+            DVr[:,i] = Line.jacobi_polynomial_grad(r,0,0,i)
+        return DVr
+
+    @staticmethod
+    def differentiation_matrix_1d(N,r,V):
+
 
 if __name__ == '__main__':
     import doctest
