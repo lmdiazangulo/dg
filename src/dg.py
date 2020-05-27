@@ -79,8 +79,18 @@ class Line:
         Compute the order N Gauss quadrature points, x, 
         and weights, w, associated with the Jacobi 
         polynomial, of type (alpha,beta) > -1 ( <> -0.5).
-        >>> Line.jacobi_gauss(2,1,0)
-        [array([-0.54691816,  0.26120387]), array([0.76094757, 0.57238576])]
+        >>> s1 = Line.jacobi_gauss(2,1,0)
+        >>> s2 = [-0.2,  2]
+        >>> np.allclose(s1,s2)
+        True
+        >>> s1 = Line.jacobi_gauss(2,1,1)
+        >>> s2 = [([-0.54691816,  0.26120387]), ([0.76094757, 0.57238576])]
+        >>> np.allclose(s1,s2)
+        True
+        >>> s1 = Line.jacobi_gauss(2,1,2)
+        >>> s2 = [([-0.70882014, -0.13230082,  0.50778763]), ([0.39524241,  0.72312171,  0.21496922])]
+        >>> np.allclose(s1,s2)
+        True
         """
         x = np.zeros(N)
         w = np.zeros(N)
@@ -112,10 +122,10 @@ class Line:
 
         J = J+np.transpose(J)
 
-        [V,D] = np.linalg.eig(J); 
-        x = np.diag(D)
+        [x,V] = np.linalg.eig(J) 
+#        x = np.diag(D)
 #        vt = np.transpose(V[0,:])
-        w = V**2*2**(alpha+beta+1)/(alpha+beta+1)*scipy.special.gamma(alpha+1) \
+        w = V[0,:]**2*2**(alpha+beta+1)/(alpha+beta+1)*scipy.special.gamma(alpha+1) \
             * scipy.special.gamma(beta+1)/scipy.special.gamma(alpha+beta+1)
 
         return [x,w]
@@ -250,11 +260,13 @@ class Line:
 
         >>> r = Line.jacobi_gauss_lobatto(0,0,3)
         >>> V = Line.vandermonde_1d(3,r)
-        >>> Line.differentiation_matrix_1d(3,r,V)
-        array([[-3.00000000e+00,  4.04508497e+00, -1.54508497e+00,  5.00000000e-01],
-               [-8.09016994e-01, -4.05396129e-16,  1.11803399e+00, -3.09016994e-01],
-               [ 3.09016994e-01, -1.11803399e+00,  6.28036983e-16,  8.09016994e-01],
-               [-5.00000000e-01,  1.54508497e+00, -4.04508497e+00,  3.00000000e+00]])
+        >>> A1 = Line.differentiation_matrix_1d(3,r,V)
+        >>> A2 = ([[-3.00000000e+00,  4.04508497e+00, -1.54508497e+00,  5.00000000e-01], \
+                   [-8.09016994e-01, -4.05396129e-16,  1.11803399e+00, -3.09016994e-01], \
+                   [ 3.09016994e-01, -1.11803399e+00,  6.28036983e-16,  8.09016994e-01], \
+                   [-5.00000000e-01,  1.54508497e+00, -4.04508497e+00,  3.00000000e+00]])
+        >>> np.allclose(A1,A2)
+        True
         """
         Vr = Line.vandermonde_1d_grad(N,r)
         Vinv = np.linalg.inv(V)
