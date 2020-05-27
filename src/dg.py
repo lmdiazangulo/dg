@@ -130,9 +130,6 @@ class Line:
 
         return [x,w]
 
-
-
-
     @staticmethod
     def jacobi_polynomial(r, alpha, beta, N):
         """
@@ -349,6 +346,67 @@ class Line:
         Vinv = np.linalg.inv(V)
         F = np.matmul(Fi,Vinv)
         return F
+
+    @staticmethod
+    def mesh_generator_1d(xmin,xmax,K):
+        """
+        Generate simple equidistant grid with K elements
+        >>> [Nv, vx, K, etov] = Line.mesh_generator_1d(0,10,4)
+        >>> Nv
+        5
+        >>> vx_test = ([0.00000000,2.50000000,5.00000000,7.50000000,10.00000000])
+        >>> np.allclose(vx,vx_test)
+        True
+        >>> K
+        4
+        >>> etov_test = ([[1, 2],[2, 3],[3, 4],[4, 5]])
+        >>> np.allclose(etov,etov_test)
+        True
+        """
+
+        Nv = K+1
+        vx = np.zeros(Nv)
+        for i in range(Nv):
+            vx[i] = (xmax-xmin)*i/(Nv-1)+xmin
+        #np.zeros creates a float array. etov should be an integer array
+        etov = np.full((K,2),0)
+        #etov = np.zeros([K,2])
+        for i in range(K):
+            etov[i,0] = i+1
+            etov[i,1] = i+2
+
+        return [Nv,vx,K,etov]
+
+    @staticmethod
+    def nodes_coordinates(N,etov,vx):
+        """
+        Part of StartUp1D.m. Defined to be able to define
+        methods depedent grid properties
+        >>> [Nv,vx,K,etov] = Line.mesh_generator_1d(0,10,4)
+        >>> x = Line.nodes_coordinates(4,etov,vx)
+        >>> x_test = ([[0.00000000,    2.50000000,    5.00000000,    7.50000000], \
+                       [0.43168291,    2.93168291,    5.43168291,    7.93168291], \
+                       [1.25000000,    3.75000000,    6.25000000,    8.75000000], \
+                       [2.06831709,    4.56831709,    7.06831709,    9.56831709], \
+                       [2.50000000,    5.00000000,    7.50000000,   10.00000000]])
+        >>> np.allclose(x,x_test)
+        True
+        """
+
+        r = Line.jacobi_gauss_lobatto(0,0,N)
+        
+        va = etov[:,0]
+        vb = etov[:,1]
+        vx_va = np.zeros([1,len(va)])
+        vx_vb = np.zeros([1,len(va)])
+        for i in range(len(va)):
+            vx_va[0,i] = vx[va[i]-1]
+            vx_vb[0,i] = vx[vb[i]-1]
+
+        x = np.matmul(np.ones([N+1,1]),vx_va)+0.5*np.matmul((r.reshape(N+1,1)+1),(vx_vb-vx_va))
+        return x
+
+
 
 if __name__ == '__main__':
     import doctest
