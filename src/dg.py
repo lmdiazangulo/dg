@@ -518,13 +518,76 @@ class Line:
         return [etoe, etof]
 
     @staticmethod
-    def build_maps_1d(etoe,etof):
+    def build_maps_1d(N,x,etoe,etof):
         """
         Connectivity and boundary tables for nodes given in the K # of elements,
         each with N+1 degrees of freedom.
+        >>> [Nv,vx,K,etov] = Line.mesh_generator_1d(0,10,4)
+        >>> x = Line.nodes_coordinates(4,etov,vx)
+        >>> [etoe, etof] = Line.connect_1d(etov)
+        >>> [vmap_m,vmap_p,vmap_b,map_b] = Line.build_maps_1d(4,x,etoe,etof)
+        >>> vmap_m_test = ([[1,5,6,10,11,15,16,20]])
+        >>> np.allclose(vmap_m,vmap_m_test)
+        True
+        >>> vmap_p_test = ([[1,6,5,11,10,16,15,20]])
+        >>> np.allclose(vmap_p,vmap_p_test)
+        True
+        >>> vmap_b_test = ([[1,20]])
+        >>> np.allclose(vmap_b,vmap_b_test)
+        True
+        >>> map_b_test = ([[1,8]])
+        >>> np.allclose(map_b,map_b_test)
+        True
         """
 
+        r = Line.jacobi_gauss_lobatto(0,0,N)
+        K = np.size(etoe,0)
+        Np = N+1
+        n_faces = 2
+        Nfp = 1
+        #mask defined in globals
+        fmask_1 = np.where(np.abs(r+1)<1e-10)[0][0]
+        fmask_2 = np.where(np.abs(r-1)<1e-10)[0][0]
+        fmask = [fmask_1,fmask_2]
 
+        node_ids = np.reshape(np.arange(K*Np),[Np,K],'F')
+        vmap_m = np.full([K,Nfp,n_faces],0)
+        vmap_p = np.full([K,Nfp,n_faces],0)
+
+        for k1 in range(K):
+            for f1 in range(n_faces):
+                vmap_m[k1,:,f1] = node_ids[fmask[f1],k1]
+
+        for k1 in range(K):
+            for f1 in range(n_faces):
+                k2 = etoe[k1,f1]-1
+                f2 = etof[k1,f1]-1
+
+                vid_m = vmap_m[k1,:,f1][0]
+                vid_p = vmap_m[k2,:,f2][0]
+
+                x1 = x.ravel('F')[vid_m]
+                x2 = x.ravel('F')[vid_p]
+
+                D = (x2-x1)**2  
+                if (D<1e-10):
+                    vmap_p[k1,:,f1] = vid_p
+        vmap_m+=1
+        vmap_p+=1
+
+        vmap_p = vmap_p.ravel()
+        vmap_m = vmap_m.ravel()
+
+        map_b = np.where(vmap_p==vmap_m)[0]
+        vmap_b = vmap_m[map_b]
+
+        map_b+=1
+        vmap_b
+
+        map_i = 1
+        map_o = K*n_faces
+        vmap_i = 1
+        vmap_0 = K*Np
 
         return [vmap_m,vmap_p,vmap_b,map_b]
 
