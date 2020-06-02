@@ -130,9 +130,6 @@ class Line:
 
         return [x,w]
 
-
-
-
     @staticmethod
     def jacobi_polynomial(r, alpha, beta, N):
         """
@@ -292,12 +289,12 @@ class Line:
                [ 0.89442719, -0.89442719],
                [-2.        ,  8.        ]])
         """
-        # Nfaces, Nfp and Np are defined as global variables
-        Nfaces = 1
-        Nfp = 2
+        # n_faces, n_fp and Np are defined as global variables
+        n_faces = 1
+        n_fp = 2
         Np = N+1
 
-        Emat = np.zeros([Np,Nfaces*Nfp])
+        Emat = np.zeros([Np,n_faces*n_fp])
         Emat[0,0] = 1.0
         Emat[Np-1,1] = 1.0
 
@@ -315,10 +312,10 @@ class Line:
                [ 1.,  1.,  1.,  1.]])
         """
         # K is the number of elements, derived from the grid info
-        # Nfaces and Nfp are defined as global variables
-        Nfaces = 1
-        Nfp = 2
-        nx = np.zeros([Nfp*Nfaces,K])
+        # n_faces and n_fp are defined as global variables
+        n_faces = 1
+        n_fp = 2
+        nx = np.zeros([n_fp*n_faces,K])
         nx[0,:] = -1.0
         nx[1,:] = 1.0
         return nx 
@@ -349,6 +346,253 @@ class Line:
         Vinv = np.linalg.inv(V)
         F = np.matmul(Fi,Vinv)
         return F
+
+    @staticmethod
+    def mesh_generator_1d(xmin,xmax,K):
+        """
+        Generate simple equidistant grid with K elements
+        >>> [Nv, vx, K, etov] = Line.mesh_generator_1d(0,10,4)
+        >>> Nv
+        5
+        >>> vx_test = ([0.00000000,2.50000000,5.00000000,7.50000000,10.00000000])
+        >>> np.allclose(vx,vx_test)
+        True
+        >>> K
+        4
+        >>> etov_test = ([[1, 2],[2, 3],[3, 4],[4, 5]])
+        >>> np.allclose(etov,etov_test)
+        True
+        """
+
+        Nv = K+1
+        vx = np.zeros(Nv)
+        for i in range(Nv):
+            vx[i] = (xmax-xmin)*i/(Nv-1)+xmin
+        #np.zeros creates a float array. etov should be an integer array
+        etov = np.full((K,2),0)
+        #etov = np.zeros([K,2])
+        for i in range(K):
+            etov[i,0] = i+1
+            etov[i,1] = i+2
+
+        return [Nv,vx,K,etov]
+
+    @staticmethod
+    def nodes_coordinates(N,etov,vx):
+        """
+        Part of StartUp1D.m. Defined to be able to define
+        methods depedent grid properties
+        >>> [Nv,vx,K,etov] = Line.mesh_generator_1d(0,10,4)
+        >>> x = Line.nodes_coordinates(4,etov,vx)
+        >>> x_test = ([[0.00000000,    2.50000000,    5.00000000,    7.50000000], \
+                       [0.43168291,    2.93168291,    5.43168291,    7.93168291], \
+                       [1.25000000,    3.75000000,    6.25000000,    8.75000000], \
+                       [2.06831709,    4.56831709,    7.06831709,    9.56831709], \
+                       [2.50000000,    5.00000000,    7.50000000,   10.00000000]])
+        >>> np.allclose(x,x_test)
+        True
+        """
+
+        r = Line.jacobi_gauss_lobatto(0,0,N)
+        
+        va = etov[:,0]
+        vb = etov[:,1]
+        vx_va = np.zeros([1,len(va)])
+        vx_vb = np.zeros([1,len(va)])
+        for i in range(len(va)):
+            vx_va[0,i] = vx[va[i]-1]
+            vx_vb[0,i] = vx[vb[i]-1]
+
+        x = np.matmul(np.ones([N+1,1]),vx_va)+0.5*np.matmul((r.reshape(N+1,1)+1),(vx_vb-vx_va))
+        return x
+
+    @staticmethod
+    def geometric_factors(x,Dr):
+        """
+        Compute the metric elements for the local mappings of the 1D elements 
+        >>> [Nv,vx,K,etov] = Line.mesh_generator_1d(0,10,4)
+        >>> x = Line.nodes_coordinates(2,etov,vx)
+        >>> r = Line.jacobi_gauss_lobatto(0,0,2)
+        >>> V = Line.vandermonde_1d(2,r)
+        >>> Dr = Line.differentiation_matrix_1d(2,r,V)
+        >>> [rx,J] = Line.geometric_factors(x,Dr)
+        >>> rx_test = ([[0.80000,   0.80000,   0.80000,   0.80000], \
+                        [0.80000,   0.80000,   0.80000,   0.80000], \
+                        [0.80000,   0.80000,   0.80000,   0.80000]])
+        >>> J_test =   ([[1.2500,   1.2500,   1.2500,   1.2500], \
+                         [1.2500,   1.2500,   1.2500,   1.2500], \
+                         [1.2500,   1.2500,   1.2500,   1.2500]])
+        >>> np.allclose(rx,rx_test)
+        True
+        >>> np.allclose(J,J_test)
+        True
+        """
+        xr = np.matmul(Dr,x)
+        J = xr
+        rx = 1/J
+
+        return [rx,J]
+
+    @staticmethod
+    def connect_1d(etov):
+        """
+        Build global connectivity arrays for 1D grid based on standard 
+        etov input array from grid generator
+        >>> [Nv,vx,K,etov] = Line.mesh_generator_1d(0,10,4)
+        >>> [etoe, etof] = Line.connect_1d(etov)
+        >>> etoe_test =  ([[1,2], \
+                           [1,3], \
+                           [2,4], \
+                           [3,4]])
+        >>> etof_test =  ([[1,1], \
+                           [2,1], \
+                           [2,1], \
+                           [2,2]])
+        >>> np.allclose(etoe,etoe_test)
+        True
+        >>> np.allclose(etof,etof_test)
+        True
+        >>> [Nv,vx,K,etov] = Line.mesh_generator_1d(-1,22,7)
+        >>> [etoe, etof] = Line.connect_1d(etov)
+        >>> etoe_test = ([[1,2],\
+                          [1,3],\
+                          [2,4],\
+                          [3,5],\
+                          [4,6],\
+                          [5,7],\
+                          [6,7]])
+        >>> etof_test = ([[1,1],\
+                          [2,1],\
+                          [2,1],\
+                          [2,1],\
+                          [2,1],\
+                          [2,1],\
+                          [2,2]])
+        >>> np.allclose(etoe,etoe_test)
+        True
+        >>> np.allclose(etof,etof_test)
+        True
+
+
+
+        """
+        n_faces = 2
+        k = np.shape(etov)[0] 
+        total_faces = n_faces*k 
+        nv = k+1
+
+        vn = np.arange(0,2)
+        sp_ftov = np.zeros([total_faces,nv])
+        sk = 0
+        for i in range(k):
+            for face in range(n_faces):
+                sp_ftov[sk][etov[i][vn[face]]-1] = 1
+                sk += 1
+        
+        sp_ftof = np.matmul(sp_ftov,np.transpose(sp_ftov))-np.identity(total_faces)
+        [faces_2,faces_1] = np.where(sp_ftof==1)
+        #numpy floor returns floats
+        element_1 = np.int64(np.floor(faces_1/n_faces))
+        element_2 = np.int64(np.floor(faces_2/n_faces))
+        face_1 = np.mod(faces_1,n_faces)
+        face_2 = np.mod(faces_2,n_faces)
+
+
+        ind = np.arange(len(element_1))
+        for i in range(len(element_1)):
+            ind[i] = np.ravel_multi_index((element_1[i],face_1[i]),dims=(k,n_faces))
+
+        etoe_1 = np.transpose(np.arange(1,k+1).reshape(1,k))
+        etoe_2 = np.full([1,n_faces],1)
+        etoe = np.matmul(etoe_1,etoe_2)
+
+        etof_1 = np.full([k,1],1)
+        etof_2 = np.arange(1,n_faces+1).reshape(1,n_faces)
+        etof = np.matmul(etof_1,etof_2)
+
+
+        for i in range(len(ind)):
+            etoe.ravel()[ind[i]] = element_2[i]+1
+            etof.ravel()[ind[i]] = face_2[i]+1 
+
+        return [etoe, etof]
+
+    @staticmethod
+    def build_maps_1d(N,x,etoe,etof):
+        """
+        Connectivity and boundary tables for nodes given in the K # of elements,
+        each with N+1 degrees of freedom.
+        >>> [Nv,vx,K,etov] = Line.mesh_generator_1d(0,10,4)
+        >>> x = Line.nodes_coordinates(4,etov,vx)
+        >>> [etoe, etof] = Line.connect_1d(etov)
+        >>> [vmap_m,vmap_p,vmap_b,map_b] = Line.build_maps_1d(4,x,etoe,etof)
+        >>> vmap_m_test = ([[1,5,6,10,11,15,16,20]])
+        >>> np.allclose(vmap_m,vmap_m_test)
+        True
+        >>> vmap_p_test = ([[1,6,5,11,10,16,15,20]])
+        >>> np.allclose(vmap_p,vmap_p_test)
+        True
+        >>> vmap_b_test = ([[1,20]])
+        >>> np.allclose(vmap_b,vmap_b_test)
+        True
+        >>> map_b_test = ([[1,8]])
+        >>> np.allclose(map_b,map_b_test)
+        True
+        """
+
+        r = Line.jacobi_gauss_lobatto(0,0,N)
+        K = np.size(etoe,0)
+        Np = N+1
+        n_faces = 2
+        Nfp = 1
+        #mask defined in globals
+        fmask_1 = np.where(np.abs(r+1)<1e-10)[0][0]
+        fmask_2 = np.where(np.abs(r-1)<1e-10)[0][0]
+        fmask = [fmask_1,fmask_2]
+
+        node_ids = np.reshape(np.arange(K*Np),[Np,K],'F')
+        vmap_m = np.full([K,Nfp,n_faces],0)
+        vmap_p = np.full([K,Nfp,n_faces],0)
+
+        for k1 in range(K):
+            for f1 in range(n_faces):
+                vmap_m[k1,:,f1] = node_ids[fmask[f1],k1]
+
+        for k1 in range(K):
+            for f1 in range(n_faces):
+                k2 = etoe[k1,f1]-1
+                f2 = etof[k1,f1]-1
+
+                vid_m = vmap_m[k1,:,f1][0]
+                vid_p = vmap_m[k2,:,f2][0]
+
+                x1 = x.ravel('F')[vid_m]
+                x2 = x.ravel('F')[vid_p]
+
+                D = (x2-x1)**2  
+                if (D<1e-10):
+                    vmap_p[k1,:,f1] = vid_p
+        vmap_m+=1
+        vmap_p+=1
+
+        vmap_p = vmap_p.ravel()
+        vmap_m = vmap_m.ravel()
+
+        map_b = np.where(vmap_p==vmap_m)[0]
+        vmap_b = vmap_m[map_b]
+
+        map_b+=1
+        vmap_b
+
+        map_i = 1
+        map_o = K*n_faces
+        vmap_i = 1
+        vmap_0 = K*Np
+
+        return [vmap_m,vmap_p,vmap_b,map_b]
+
+
+
 
 if __name__ == '__main__':
     import doctest
