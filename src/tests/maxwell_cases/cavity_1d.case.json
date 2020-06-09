@@ -2,26 +2,28 @@
     "solver": {
         "type": "maxwell",
         "spatial_discretization": {
-            "tesselation": {
-                "dimension": 1,
-                "type": "dg",
-                "flux_type": "centered",
-                "fields": {
-                    "electric": 1,
-                    "magnetic": 1
-                },
-                "basis": {
-                    "type": "nodal_lgl",
-                    "order": 1
-                },
-                "grid": [
-                    {
-                        "elem_id": 0,
-                        "steps": 0.025,
-                        "bounds": ["pec", "pec"]
-                    }
-                ]
-            }
+            "tesselations": [
+                {
+                    "dimension": 1,
+                    "type": "dg",
+                    "flux_type": "centered",
+                    "fields": {
+                        "electric": 1,
+                        "magnetic": 1
+                    },
+                    "basis": {
+                        "type": "nodal_lgl",
+                        "order": 1
+                    },
+                    "grid": [
+                        {
+                            "elem_id": 0,
+                            "steps": 0.025,
+                            "bounds": ["pec", "pec"]
+                        }
+                    ]
+                }
+            ]
         },
         "time_integrator": {
             "type": "lserk4",
@@ -30,35 +32,39 @@
         }
     },
 
-    "coordinates": [
-        0.0,
-        1.0,
-        0.5
-    ],
+    "geometry": {
+        "coordinates": [
+            0.0,
+            1.0,
+            0.5
+        ],
 
-    "elements": [
-        [0, 1],
-        [2, 2],
-        [1, 2]
-    ],
+        "lines": [
+            [0, 1],
+            [2, 2],
+            [1, 2]
+        ]
+    },
 
-    "electromagnetic_sources": [
-        {
-            "type": "initialCond",
-            "magnitude": {
-                "type": "gaussian",
-                "gaussian_spread": 0.05,
-                "gaussian_amplitude": 0.5,
-                "peak_position": 1
+    "electromagnetics": {
+        "sources": [
+            {
+                "type": "initialCond",
+                "magnitude": {
+                    "type": "gaussian",
+                    "gaussian_spread": 0.05,
+                    "gaussian_amplitude": 0.5,
+                    "peak_position": 1
+                }
             }
-        }
-    ],
+        ],
 
-    "probes": [
-        {
-            "name": "e_all",
-            "type": "electricField",
-            "elem_id": 0
-        }
-    ]
+        "probes": [
+            {
+                "name": "e_all",
+                "type": "electricField",
+                "elem_id": 0
+            }
+        ]
+    }
 }
