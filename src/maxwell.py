@@ -1,4 +1,4 @@
-from spatial_discretization.tesselator import Tesselator
+from spatial_discretization.spatial_discreatization import SpatialDiscretization
 from time_integrator.lserk4 import LSERK4
 
 class Maxwell:
@@ -14,12 +14,14 @@ class Maxwell:
             "geometry" in case and \
             "electromagnetics" in case
 
+
     @staticmethod
     def are_valid_opts(opts):
         return \
             opts["type"] == "maxwell" \
             "spatial_discretization" in opts and \
             "time_integrator" in opts
+
 
     def __init__(self, case):
 
@@ -28,8 +30,8 @@ class Maxwell:
         
         # Creates spatial discretization
         try:
-            tesselator = Tesselator(case["solver"]["spatial_discretization"])
-            self.spatial_discretization = tesselator.discretize(case)
+            self.spatial_discretization = \
+                SpatialDiscretization(case["solver"]["spatial_discretization"])
         except:
             raise ValueError("Invalid spatial discretization")
 
@@ -37,5 +39,10 @@ class Maxwell:
         if case["solver"]["time_integrator"]["type"] == "lserk4":
             self.time_integrator = LSERK4(case, self.spatial_discretization)
         else:
-            raise ValueError("Invalid time integrator")
+            raise ValueError("Invalid time integrator type")
+
+
+    def solve(self):
+        self.time_integrator.integrate()
+
 

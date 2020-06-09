@@ -1,6 +1,6 @@
 
 
-class Tesselation_DG_1D:
+class Tesselation1D:
 
     @staticmethod
     def are_valid_opts(opts):
@@ -12,7 +12,7 @@ class Tesselation_DG_1D:
             "grid" in opts
 
     def __init__(self, opts):
-        if not Tesselation_1D.are_valid_opts(opts):
+        if not Tesselation1D.are_valid_opts(opts):
             raise ValueError("Tesselation parameters are not supported")
 
         print("TBD") #TODO
