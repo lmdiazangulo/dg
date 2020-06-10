@@ -1,5 +1,5 @@
-from spatial_discretization.spatial_discreatization import SpatialDiscretization
-from time_integrator.lserk4 import LSERK4
+from spatial_discretization.spatial_discretization import SpatialDiscretization
+from time_integrator import LSERK4
 
 class Maxwell:
     """
@@ -18,7 +18,7 @@ class Maxwell:
     @staticmethod
     def are_valid_opts(opts):
         return \
-            opts["type"] == "maxwell" \
+            opts["type"] == "maxwell" and \
             "spatial_discretization" in opts and \
             "time_integrator" in opts
 
@@ -38,7 +38,7 @@ class Maxwell:
 
         # Creates time integrator.
         if case["solver"]["time_integrator"]["type"] == "lserk4":
-            self.time_integrator = LSERK4(case, self.spatial_discretization)
+            self.time_integrator = LSERK4(self.spatial_discretization)
         else:
             raise ValueError("Invalid time integrator type")
 

@@ -4,10 +4,9 @@ import numpy as np
 import sys, os
 sys.path.insert(0, os.path.abspath('..'))
 
-from time_integrator import *
-from time_integrator.lserk4 import *
+from time_integrator import LSERK4
 
-class ODE_capacitor_charge:
+class ODECapacitorCharge:
     """
         Ordinary differential equation example:
             dq(t)/dt = V/R - q(t)/(R*C)
@@ -28,18 +27,25 @@ class ODE_capacitor_charge:
 class TestLSERK4(unittest.TestCase):
 
     def test_single_variable_time_integration(self):
-        eq = ODE_capacitor_charge(R=10, C=0.1, V=10)
+        eq = ODECapacitorCharge(R=10, C=0.1, V=10)
         integrator = LSERK4(eq)
+        
         dt = 0.01
         number_of_steps = 1000
-        t = np.linspace(0, dt*number_of_steps)
-        integrated_var = np.zeros((1,number_of_steps))
-        exact_var      = np.zeros((1,number_of_steps))
-        for n in range(number_of_steps):
-            integrated_var[n] = integrator.integrate(dt, 1)
-            exact_var[n] = eq.exact_solution(t[n])
-
+        t = np.linspace(0, dt*number_of_steps, number_of_steps)
         
+        integrated = np.zeros((number_of_steps))
+        exact      = np.zeros((number_of_steps))
+        for n in range(number_of_steps):
+
+            integrated[n] = eq.vars
+            integrator.integrate(dt, 1)
+
+            exact[n] = eq.exact_solution(t[n])
+
+        error = np.linalg.norm(integrated - exact)/number_of_steps
+        assert(error < 1e-5)
+
 
 if __name__ == '__main__':
     unittest.main()

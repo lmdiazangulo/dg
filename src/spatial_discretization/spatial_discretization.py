@@ -1,4 +1,5 @@
-from tesselation.tesselation_1d import Tesselation1D
+from .tesselation_1d import Tesselation1D
+import numpy as np
 
 class SpatialDiscretization:
     """
@@ -15,6 +16,7 @@ class SpatialDiscretization:
         return ("tesselations" in opts)
 
     def __init__(self, opts):
+        self.vars = np.array(1) #TODO
 
         if not SpatialDiscretization.are_valid_opts(opts):
             raise ValueError("DG has invalid options")
@@ -29,7 +31,7 @@ class SpatialDiscretization:
     def init_fields(self):
         print("TBD") #TODO
 
-    def compute_rhs(self):
+    def rhs(self, t=None):
         print("TBD") #TODO
 
 if __name__ == '__main__':
