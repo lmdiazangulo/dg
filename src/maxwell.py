@@ -24,10 +24,11 @@ class Maxwell:
 
 
     def __init__(self, case):
-
         if not Maxwell.are_valid_inputs(case):
             raise ValueError("Invalid input case")
         
+        self.case = case
+
         # Creates spatial discretization
         try:
             self.spatial_discretization = \
@@ -41,8 +42,25 @@ class Maxwell:
         else:
             raise ValueError("Invalid time integrator type")
 
+    @staticmethod
+    def maximum_time_step(time_opts, spatial_discretization):
+        if not "cfl" in time_opts:
+            cfl = 1.0
+        else:
+            cfl = time_opts["cfl"] 
+        return cfl * spatial_discretization.get_smallest_distance()
 
     def solve(self):
-        self.time_integrator.integrate()
+        time_opts = self.case["solver"]["time_integrator"]
+        dt = self.maximum_time_step(time_opts, self.spatial_discretization)
+
+        if "final_time" in time_opts:
+            number_of_steps = int (time_opts["final_time"] / dt)
+        elif "number_of_steps" in time_opts:
+            number_of_steps = time_opts["number_of_steps"]
+        else:
+            raise ValueError("Ending condition is not defined")
+
+        self.time_integrator.integrate(dt, number_of_steps)
 
 
