@@ -4,9 +4,9 @@ import math
 class TimeIntegrator:
     """
         Time integrators perform the evolution of a set of equations of the form
-            d{f} / dt = [A] {f}(t) 
-        with {f} being a vector of fields, and [A] {f} being the right hand 
-        side (RHS).
+            d{f} / dt = [A] {f}(t) + {g}(t)
+        with {f} being a vector of fields, [A] is a matrix of coefficients, and
+        {g} is a forcing function. 
     """
     __timeStepPrint = 10
 

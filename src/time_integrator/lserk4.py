@@ -19,17 +19,9 @@ class LSERK4(TimeIntegrator):
                    2006345519317.0/3224310063776.0, \
                    2802321613138.0/2924317926251.0])
 
-    @staticmethod
-    def are_valid_options(opts):
-        return \
-            "type" in opts and opts["type"] == "lserk4" and \
-            "final_time" in opts
-
-    def __init__(self, opts, equation):
-        
-        self.opts = opts
+    def __init__(self, equation):        
         self.equation = equation
-        self.residue = np.zeros(equation.fields.size)
+        self.residue = np.zeros(equation.vars.size)
 
     def integrate(self, dt, number_of_steps):
         TimeIntegrator.start_timer()
@@ -39,7 +31,7 @@ class LSERK4(TimeIntegrator):
             for i in range(5):
                 self.residue *= self.a[i]
                 self.residue += dt * self.equation.rhs(t)
-                self.equation.fields += self.b[i] * self.residue
+                self.equation.vars += self.b[i] * self.residue
 
             t += dt
             TimeIntegrator.print_progress(n, number_of_steps)
