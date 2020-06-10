@@ -22,9 +22,9 @@ class SpatialDiscretization:
             raise ValueError("DG has invalid options")
 
         self.tesselations = []
-        for tesselation in opts["tesselations"]:
-            if Tesselation1D.are_valid_opts(tesselation):
-                self.tesselations.append(Tesselation1D(tesselation))
+        for tesselation_request in opts["tesselations"]:
+            if Tesselation1D.are_valid_opts(tesselation_request):
+                self.tesselations.append(Tesselation1D(tesselation_request))
             else:
                 raise ValueError("Tesselation options not supported")
 
