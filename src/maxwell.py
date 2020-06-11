@@ -43,7 +43,7 @@ class Maxwell:
             raise ValueError("Invalid time integrator type")
 
     @staticmethod
-    def maximum_time_step(time_opts, spatial_discretization):
+    def global_max_time_step(time_opts, spatial_discretization):
         if not "cfl" in time_opts:
             cfl = 1.0
         else:
@@ -52,7 +52,7 @@ class Maxwell:
 
     def solve(self):
         time_opts = self.case["solver"]["time_integrator"]
-        dt = self.maximum_time_step(time_opts, self.spatial_discretization)
+        dt = self.global_max_time_step(time_opts, self.spatial_discretization)
 
         if "final_time" in time_opts:
             number_of_steps = int (time_opts["final_time"] / dt)

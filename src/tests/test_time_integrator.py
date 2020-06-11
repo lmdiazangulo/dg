@@ -15,10 +15,10 @@ class ODECapacitorCharge:
         self.R = R
         self.V = V
         self.C = C
-        self.vars = np.zeros(1)
+        self.vars = [np.zeros(1)]
 
     def rhs(self, t):
-        return self.V / self.R - self.vars / (self.R * self.C)
+        return self.V / self.R - self.vars[0] / (self.R * self.C)
     
     def exact_solution(self, t):
         return self.V * self.C * (1 - np.exp(-t/(self.R*self.C)) )
@@ -38,7 +38,7 @@ class TestLSERK4(unittest.TestCase):
         exact      = np.zeros((number_of_steps))
         for n in range(number_of_steps):
 
-            integrated[n] = eq.vars
+            integrated[n] = eq.vars[0]
             integrator.integrate(dt, 1)
 
             exact[n] = eq.exact_solution(t[n])

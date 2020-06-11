@@ -48,19 +48,18 @@ class LSERK4(TimeIntegrator):
 
     def __init__(self, equation):        
         self.equation = equation
-        self.residue = np.zeros(equation.vars.size)
+        self.residue = \
+            list(map(lambda x: np.zeros(x.shape), self.equation.vars))
 
     def integrate(self, dt, number_of_steps):
-        # self.start_timer()
-        
         t = 0.0
-        for n in range(number_of_steps):
+        for _ in range(number_of_steps):
             for i in range(5):
-                self.residue *= self.a[i]
-                self.residue += dt * self.equation.rhs(t)
-                self.equation.vars += self.b[i] * self.residue
+                for res in self.residue: 
+                    res *= self.a[i]
+                    res += dt * self.equation.rhs(t)
+                    
+                for j in range(len(self.equation.vars)):
+                    self.equation.vars[j] += self.b[i] * self.residue[j]
 
             t += dt
-            # self.print_progress(n, number_of_steps)
-
-        # self.print_cpu_time()
