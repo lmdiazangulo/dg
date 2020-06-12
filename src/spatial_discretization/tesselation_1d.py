@@ -1,4 +1,4 @@
-
+from spatial_discretization.utils.utils_1d import *
 
 class Tesselation1D:
 
@@ -18,7 +18,7 @@ class Tesselation1D:
 
         self.n_order = opts["basis"]["order"]
         #compute basic Legendre Gauss Lobato grid
-        self.jgl = u1d.jacobi_gauss_lobato(0,0,n_order)
+        self.jgl = jacobi_gauss_lobato(0,0,n_order)
 
         #build reference element matrices
         self.vander_matrix = u1d.vandermonde(self.n_order, self.jgl)
