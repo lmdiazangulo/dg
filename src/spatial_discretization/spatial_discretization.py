@@ -16,23 +16,22 @@ class SpatialDiscretization:
         return ("tesselations" in opts)
 
     def __init__(self, opts):
-        self.vars = np.array(1) #TODO
-
+        
         if not SpatialDiscretization.are_valid_opts(opts):
-            raise ValueError("DG has invalid options")
+            raise ValueError("Spatial Discretization has invalid options")
 
         self.tesselations = []
-        for tesselation_request in opts["tesselations"]:
-            if Tesselation1D.are_valid_opts(tesselation_request):
-                self.tesselations.append(Tesselation1D(tesselation_request))
+        for tess_request in opts["tesselations"]:
+            
+            if Tesselation1D.are_valid_opts(tess_request):
+                self.tesselations.append(Tesselation1D(tess_request))
             else:
                 raise ValueError("Tesselation options not supported")
 
-    def init_fields(self):
-        print("TBD") #TODO
-
-    def rhs(self, t=None):
-        print("TBD") #TODO
+        self.vars = []
+        for tess in self.tesselations:
+            for field_type in tess_request["fields"]:
+                self.vars.append(tess.field(field_type))
 
 if __name__ == '__main__':
     import doctest

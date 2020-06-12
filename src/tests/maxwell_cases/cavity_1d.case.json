@@ -6,7 +6,11 @@
                 {
                     "dimension": 1,
                     "type": "dg",
-                    "flux_type": "centered",
+                    "fields": [
+                        "E",
+                        "H"
+                    ],
+                    "flux_type": "upwind",
                     "basis": {
                         "type": "nodal_lgl",
                         "order": 1
