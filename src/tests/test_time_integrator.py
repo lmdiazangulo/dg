@@ -5,8 +5,9 @@ import sys, os
 sys.path.insert(0, os.path.abspath('..'))
 
 from time_integrator import LSERK4
+from spatial_discretization.equation import Equation
 
-class ODECapacitorCharge:
+class CapacitorCharge(Equation):
     """
         Ordinary differential equation example:
             dq(t)/dt = V/R - q(t)/(R*C)
@@ -27,7 +28,7 @@ class ODECapacitorCharge:
 class TestLSERK4(unittest.TestCase):
 
     def test_single_variable_time_integration(self):
-        eq = ODECapacitorCharge(R=10, C=0.1, V=10)
+        eq = CapacitorCharge(R=10, C=0.1, V=10)
         integrator = LSERK4(eq)
         
         dt = 0.01

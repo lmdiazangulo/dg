@@ -15,13 +15,11 @@
                         "type": "nodal_lgl",
                         "order": 1
                     },
-                    "grid": [
-                        {
-                            "elem_id": 0,
-                            "steps": 0.025,
-                            "bounds": ["pec", "pec"]
-                        }
-                    ]
+                    "grid": {
+                        "box": [0.0 , 1.0],
+                        "steps": 0.025,
+                        "bounds": ["pec", "pec"]
+                    }
                 }
             ]
         },

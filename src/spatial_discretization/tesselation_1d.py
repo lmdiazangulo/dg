@@ -7,7 +7,7 @@ class Tesselation1D:
         return \
             opts["dimension"] == 1 and \
             opts["type"]      == "dg" and \
-            opts["flux_type"] == "centered" and \
+            "flux_type" in opts and \
             opts["basis"]     == {"type": "nodal_lgl", "order": 1} and \
             "grid" in opts
 

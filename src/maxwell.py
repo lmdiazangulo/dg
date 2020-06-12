@@ -1,12 +1,19 @@
 from spatial_discretization.spatial_discretization import SpatialDiscretization
+from spatial_discretization.equation import Equation
 from time_integrator import LSERK4
 
-class MaxwellEquations(SpatialDiscretization):
+class MaxwellEquations(SpatialDiscretization, Equation):
+
+    def __init__(self, opts):
+        SpatialDiscretization.__init__(self, opts)
+
+
     def rhs(self, t=None):
         res = []
         for tess in self.tesselations:
             res.append( - tess.curl("H") + tess.flux("E") )
             res.append( - tess.curl("E") + tess.flux("H") )
+
 
 class Maxwell:
     """
