@@ -1,6 +1,13 @@
 from spatial_discretization.spatial_discretization import SpatialDiscretization
 from time_integrator import LSERK4
 
+class MaxwellEquations(SpatialDiscretization):
+    def rhs(self, t=None):
+        res = []
+        for tess in self.tesselations:
+            res.append( - tess.curl("H") + tess.flux("E") )
+            res.append( - tess.curl("E") + tess.flux("H") )
+
 class Maxwell:
     """
         Maxwell is a EM Solver whichs uses a spatial discretization and a time 
@@ -32,7 +39,7 @@ class Maxwell:
         # Creates spatial discretization
         try:
             self.spatial_discretization = \
-                SpatialDiscretization(case["solver"]["spatial_discretization"])
+                MaxwellEquations(case["solver"]["spatial_discretization"])
         except:
             raise ValueError("Invalid spatial discretization")
 
@@ -62,5 +69,3 @@ class Maxwell:
             raise ValueError("Ending condition is not defined")
 
         self.time_integrator.integrate(dt, number_of_steps)
-
-
