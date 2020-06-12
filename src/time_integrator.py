@@ -46,8 +46,10 @@ class LSERK4(TimeIntegrator):
                    2006345519317.0/3224310063776.0, \
                    2802321613138.0/2924317926251.0])
 
-    def __init__(self, equation):        
+    def __init__(self, equation):
         self.equation = equation
+        if not isinstance(self.equation.vars, list):
+            raise ValueError("Equation vars are not initialized")
         self.residue = \
             list(map(lambda x: np.zeros(x.shape), self.equation.vars))
 

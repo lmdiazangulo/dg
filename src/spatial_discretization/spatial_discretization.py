@@ -16,7 +16,7 @@ class SpatialDiscretization:
         return ("tesselations" in opts)
 
     def __init__(self, opts):
-        self.vars = np.array(1) #TODO
+        self.vars = [np.array(1)] #TODO
 
         if not SpatialDiscretization.are_valid_opts(opts):
             raise ValueError("DG has invalid options")
