@@ -53,8 +53,7 @@ class LSERK4(TimeIntegrator):
         self.residue = \
             list(map(lambda x: np.zeros(x.shape), self.equation.vars))
 
-    def integrate(self, dt: float, number_of_steps: int):
-        t = 0.0
+    def integrate(self, dt, number_of_steps:int = 1, t = 0.0):
         for _ in range(number_of_steps):
             for i in range(5):
                 for res in self.residue: 

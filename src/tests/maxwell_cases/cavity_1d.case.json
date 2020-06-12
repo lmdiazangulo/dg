@@ -32,36 +32,39 @@
 
     "geometry": {
         "coordinates": [
-            0.0,
-            1.0,
-            0.5
+            [1, [0.5]]
         ],
 
-        "lines": [
-            [0, 1],
-            [2, 2],
-            [1, 2]
-        ]
+        "elements": {
+            "nodes": [
+                [1, [2]]
+            ]
+        }
     },
 
     "electromagnetics": {
         "sources": [
             {
-                "type": "initialCond",
+                "type": "initial_condition",
+                "fields": [
+                    "E"
+                ],
                 "magnitude": {
                     "type": "gaussian",
                     "gaussian_spread": 0.05,
                     "gaussian_amplitude": 0.5,
-                    "peak_position": 1
+                    "peak_position": 1.0
                 }
             }
         ],
 
         "probes": [
             {
-                "name": "e_all",
-                "type": "electricField",
-                "elem_id": 0
+                "name": "E_all",
+                "fields": [
+                    "E"
+                ],
+                "element_id": 0
             }
         ]
     }
