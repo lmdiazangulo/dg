@@ -1,7 +1,8 @@
 from spatial_discretization.spatial_discretization import SpatialDiscretization
+from spatial_discretization.equation import Equation
 from time_integrator import LSERK4
 
-class MaxwellEquations(SpatialDiscretization):
+class MaxwellEquations(SpatialDiscretization, Equation):
 
     def __init__(self, opts):
         SpatialDiscretization.__init__(self, opts)

@@ -3,8 +3,8 @@ import numpy as np
 
 class SpatialDiscretization:
     """
-        SpatialDiscretization manages a group of tesselations. It can be also 
-        regarded as a system of equations of the form 
+        SpatialDiscretization manages a group of tesselations managing the 
+        variables in a system of equations of the form 
             d{f} / dt = [A] {f}(t) + {g}(t)
         with {f} being a vector of fields, [A] is a matrix of coefficients, and
         {g} is a forcing function. 
