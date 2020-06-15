@@ -58,7 +58,7 @@ class LSERK4(TimeIntegrator):
             for i in range(5):
                 for res in self.residue: 
                     res *= self.a[i]
-                    res += dt * self.equation.rhs(t)
+                    res += dt * self.equation.rhs(t + self.c[i] * dt)
                     
                 for j in range(len(self.equation.vars)):
                     self.equation.vars[j] += self.b[i] * self.residue[j]
