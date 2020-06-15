@@ -18,11 +18,11 @@ class SpatialDiscretization:
     def __init__(self, opts):
         
         if not SpatialDiscretization.are_valid_opts(opts):
-            raise ValueError("Spatial Discretization has invalid options")
+            raise ValueError( \
+                "Spatial Discretization has invalid options")
 
         self.tesselations = []
         for tess_request in opts["tesselations"]:
-            
             if Tesselation1D.are_valid_opts(tess_request):
                 self.tesselations.append(Tesselation1D(tess_request))
             else:
@@ -32,6 +32,14 @@ class SpatialDiscretization:
         for tess in self.tesselations:
             for field_type in tess_request["fields"]:
                 self.vars.append(tess.field(field_type))
+
+    def get_smallest_distance(self) -> float:
+        res = float("inf")
+        for tess in self.tesselations:
+            aux = tess.get_smallest_distance()
+            if aux < res:
+                res = aux
+        return res
 
 if __name__ == '__main__':
     import doctest

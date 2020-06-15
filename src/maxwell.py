@@ -17,7 +17,7 @@ class MaxwellEquations(SpatialDiscretization, Equation):
 
 class Maxwell:
     """
-        Maxwell is a EM Solver whichs uses a spatial discretization and a time 
+        Maxwell is an EM Solver which uses a spatial discretization and a time 
         integrator.
     """
 
@@ -43,12 +43,20 @@ class Maxwell:
         
         self.case = case
 
-        # Creates spatial discretization
+        # Creates spatial discretization.
         try:
             self.spatial_discretization = \
                 MaxwellEquations(case["solver"]["spatial_discretization"])
         except:
             raise ValueError("Invalid spatial discretization")
+
+        # Initializes probes.
+        for probe in case["electromagnetics"]["probes"]:
+            self._init_probe(probe)
+
+        # Sets sources if exist.
+        for source in case["electromagnetics"]["sources"]:
+            self._init_source(source)
 
         # Creates time integrator.
         if case["solver"]["time_integrator"]["type"] == "lserk4":
@@ -56,17 +64,26 @@ class Maxwell:
         else:
             raise ValueError("Invalid time integrator type")
 
-    @staticmethod
-    def global_max_time_step(time_opts, spatial_discretization):
+
+    def _global_max_time_step(self, time_opts):
         if not "cfl" in time_opts:
             cfl = 1.0
         else:
             cfl = time_opts["cfl"] 
-        return cfl * spatial_discretization.get_smallest_distance()
+        return cfl * self.spatial_discretization.get_smallest_distance()
+
+
+    def _init_probe(self, probe_request):
+        print("TBD") #TODO
+
+
+    def _init_source(self, source_request):
+        print("TBD") #TODO
+
 
     def solve(self):
         time_opts = self.case["solver"]["time_integrator"]
-        dt = self.global_max_time_step(time_opts, self.spatial_discretization)
+        dt = self._global_max_time_step(time_opts)
 
         if "final_time" in time_opts:
             number_of_steps = int (time_opts["final_time"] / dt)
@@ -74,5 +91,17 @@ class Maxwell:
             number_of_steps = time_opts["number_of_steps"]
         else:
             raise ValueError("Ending condition is not defined")
+        
+        t = 0.0
+        for n in range(number_of_steps):
+            self.time_integrator.integrate(dt, 1, t)
+            t += dt
+            self._process_probes(t)
 
-        self.time_integrator.integrate(dt, number_of_steps)
+
+    def _process_probes(self, t):
+        print("TBD") #TODO
+
+
+
+
