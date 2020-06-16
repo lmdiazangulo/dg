@@ -4,7 +4,7 @@ import json
 import sys, os
 sys.path.insert(0, os.path.abspath('..'))
 
-import maxwell
+from maxwell import Maxwell
 
 class TestMaxwell(unittest.TestCase):
 
@@ -14,10 +14,10 @@ class TestMaxwell(unittest.TestCase):
         case_file_name = "cavity_1d.case.json"
         case = json.load(open(self.default_cases_path + case_file_name))
         try:
-            solver = maxwell.Maxwell(case)
+            solver = Maxwell(case)
         except:
             self.fail("Problem parsing file")
-        
+                
 
 if __name__ == '__main__':
     unittest.main()
